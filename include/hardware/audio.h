@@ -41,6 +41,8 @@ __BEGIN_DECLS
  */
 #define AUDIO_HARDWARE_INTERFACE "audio_hw_if"
 
+// star add for raw data output
+#define AUDIO_PARAMETER_RAW_DATA_OUT "raw_data_output"
 
 /* Use version 0.1 to be compatible with first generation of audio hw module with version_major
  * hardcoded to 1. No audio module API change.

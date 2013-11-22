@@ -1,0 +1,101 @@
+project hardware/libhardware/
+diff --git a/include/hardware/audio.h b/include/hardware/audio.h
+index 3a0962e..ed1370a 100644
+--- a/include/hardware/audio.h
++++ b/include/hardware/audio.h
+@@ -117,6 +117,8 @@ __BEGIN_DECLS
+  * "sup_sampling_rates=44100|48000" */
+ #define AUDIO_PARAMETER_STREAM_SUP_SAMPLING_RATES "sup_sampling_rates"
+ 
++// star add for raw data output
++#define AUDIO_PARAMETER_RAW_DATA_OUT "raw_data_output"
+ 
+ /**************************************/
+ 
+diff --git a/include/hardware/camera.h b/include/hardware/camera.h
+index b7182f8..77bafdb 100644
+--- a/include/hardware/camera.h
++++ b/include/hardware/camera.h
+@@ -248,6 +248,12 @@ typedef struct camera_device_ops {
+      */
+     int (*set_parameters)(struct camera_device *, const char *parms);
+ 
++	/**
++     * Set the file descriptor to HAL for writing file ih the HAL by fuqiang.
++     * This is added for android 4.2.
++     */
++	int (*set_fd)(struct camera_device *, int fd);
++
+     /** Retrieve the camera parameters.  The buffer returned by the camera HAL
+         must be returned back to it with put_parameters, if put_parameters
+         is not NULL.
+diff --git a/include/hardware/gralloc.h b/include/hardware/gralloc.h
+index 7c819f0..bb7d798 100644
+--- a/include/hardware/gralloc.h
++++ b/include/hardware/gralloc.h
+@@ -201,6 +201,9 @@ typedef struct gralloc_module_t {
+     int (*perform)(struct gralloc_module_t const* module,
+             int operation, ... );
+ 
++    int (*getPhyAddress)(struct gralloc_module_t const* module, buffer_handle_t handle,
++					   void** auiPhyAddr);
++					   
+     /* reserved for future use */
+     void* reserved_proc[7];
+ } gralloc_module_t;
+diff --git a/include/hardware/hwcomposer.h b/include/hardware/hwcomposer.h
+index c30ef33..d53fc29 100644
+--- a/include/hardware/hwcomposer.h
++++ b/include/hardware/hwcomposer.h
+@@ -293,6 +293,7 @@ typedef struct hwc_display_contents_1 {
+             int outbufAcquireFenceFd;
+         };
+     };
++    hwc_rect_t frame;
+ 
+     /* List of layers that will be composed on the display. The buffer handles
+      * in the list will be unique. If numHwLayers is 0, all composition will be
+@@ -557,10 +558,16 @@ typedef struct hwc_composer_device_1 {
+     int (*getDisplayAttributes)(struct hwc_composer_device_1* dev, int disp,
+             uint32_t config, const uint32_t* attributes, int32_t* values);
+ 
++    int (*setParameter)(struct hwc_composer_device_1* dev, int cmd, int disp,
++            int para0, int para1);
++
++    int (*getParameter)(struct hwc_composer_device_1* dev, int cmd, int disp,
++            int para0, int para1);
++
+     /*
+      * Reserved for future use. Must be NULL.
+      */
+-    void* reserved_proc[4];
++    void* reserved_proc[2];
+ 
+ } hwc_composer_device_1_t;
+ 
+@@ -578,6 +585,25 @@ static inline int hwc_close_1(hwc_composer_device_1_t* device) {
+ 
+ /*****************************************************************************/
+ 
++/* cmd parameter for setParameter() */
++typedef enum{
++	DISPLAY_CMD_SET3DMODE = 0x01,
++	DISPLAY_CMD_SETBACKLIGHTMODE = 0x02,
++	DISPLAY_CMD_SETBACKLIGHTDEMOMODE = 0x03,
++	DISPLAY_CMD_SETDISPLAYENHANCEMODE = 0x04,
++	DISPLAY_CMD_SETDISPLAYENHANCEDEMOMODE = 0x05,
++	DISPLAY_CMD_SETOUTPUTMODE = 0x06
++}__display_cmd_t;
++
++typedef enum
++{
++    DISPLAY_2D_ORIGINAL = 0,
++    DISPLAY_2D_LEFT = 1,
++    DISPLAY_2D_TOP = 2,
++    DISPLAY_3D_LEFT_RIGHT_HDMI = 3,
++    DISPLAY_3D_TOP_BOTTOM_HDMI = 4,
++}__display_3d_mode;
++
+ #if !HWC_REMOVE_DEPRECATED_VERSIONS
+ #include <hardware/hwcomposer_v0.h>
+ #endif
