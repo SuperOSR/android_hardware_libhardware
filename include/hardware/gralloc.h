@@ -221,9 +221,11 @@ typedef struct gralloc_module_t {
             buffer_handle_t handle);
 
 
+#ifdef TARGET_BOARD_FIBER
     int (*getPhyAddress)(struct gralloc_module_t const* module, buffer_handle_t handle,
 					   void** auiPhyAddr);
 					   
+#endif
     /* reserved for future use */
     int (*perform)(struct gralloc_module_t const* module,
             int operation, ... );

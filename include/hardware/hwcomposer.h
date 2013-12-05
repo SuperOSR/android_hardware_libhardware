@@ -345,7 +345,10 @@ typedef struct hwc_display_contents_1 {
             int outbufAcquireFenceFd;
         };
     };
+
+#ifdef TARGET_BOARD_FIBER
     hwc_rect_t frame;
+#endif
 
     /* List of layers that will be composed on the display. The buffer handles
      * in the list will be unique. If numHwLayers is 0, all composition will be
@@ -608,16 +611,18 @@ typedef struct hwc_composer_device_1 {
     int (*getDisplayAttributes)(struct hwc_composer_device_1* dev, int disp,
             uint32_t config, const uint32_t* attributes, int32_t* values);
 
+#ifdef TARGET_BOARD_FIBER
     int (*setParameter)(struct hwc_composer_device_1* dev, int cmd, int disp,
             int para0, int para1);
 
     int (*getParameter)(struct hwc_composer_device_1* dev, int cmd, int disp,
             int para0, int para1);
+#endif
 
     /*
      * Reserved for future use. Must be NULL.
      */
-    void* reserved_proc[2];
+    void* reserved_proc[4];
 
 } hwc_composer_device_1_t;
 
@@ -635,6 +640,7 @@ static inline int hwc_close_1(hwc_composer_device_1_t* device) {
 
 /*****************************************************************************/
 
+#ifdef TARGET_BOARD_FIBER
 /* cmd parameter for setParameter() */
 typedef enum{
 	DISPLAY_CMD_SET3DMODE = 0x01,
@@ -653,6 +659,7 @@ typedef enum
     DISPLAY_3D_LEFT_RIGHT_HDMI = 3,
     DISPLAY_3D_TOP_BOTTOM_HDMI = 4,
 }__display_3d_mode;
+#endif
 
 __END_DECLS
 
